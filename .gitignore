@@ -1,0 +1,7 @@
+*.vdi
+*.vmdk
+*.ova
+*.iso
+*.backup
+wazuh-install-files.tar
+*passwords*.txt
