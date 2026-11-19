@@ -16,7 +16,7 @@
 3. Choose **Use an existing virtual hard disk file** and select the CHR `.vdi`.
 4. **Settings → Network**:
    - Adapter 1: **Bridged Adapter** (your host Wi-Fi/Ethernet). This becomes `ether1` (WAN).
-   - Adapter 2: **Internal Network** `LAN-Zyra` → `ether2` (Users).
+   - Adapter 2: **Internal Network** `LAN-Office` → `ether2` (Office).
    - Adapter 3: **Internal Network** `ether3-Servers` → `ether3` (Servers).
    - Adapter 4: **Internal Network** `LAN-Security` → `ether4` (Security).
 5. Start the VM and log in as `admin` with an empty password. RouterOS will make you set a new one.
@@ -28,7 +28,7 @@ Each VM's Adapter 1 must use the **same internal network name** as the MikroTik 
 | VM | Adapter 1 |
 |----|-----------|
 | DC01 | Internal Network `ether3-Servers` |
-| Win 10 | Internal Network `LAN-Zyra` |
+| Win 10 | Internal Network `LAN-Office` |
 | Ubuntu Server | Internal Network `LAN-Security` |
 
 ![VirtualBox VM list](../screenshots/virtualbox-vms.png)

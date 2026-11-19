@@ -89,9 +89,9 @@ Every segment is a separate VirtualBox **internal network** attached to its own 
 
 | VM | Operating system | vCPU / RAM | Role | VirtualBox network |
 |----|------------------|------------|------|--------------------|
-| **MikroTik-CHR** | RouterOS 7.24.6 (long-term) | 1 / 256 MB | Core router, DHCP, NAT, firewall | Adapter 1 Bridged (WAN) · 2 `LAN-Zyra` · 3 `ether3-Servers` · 4 `LAN-Security` |
+| **MikroTik-CHR** | RouterOS 7.24.6 (long-term) | 1 / 256 MB | Core router, DHCP, NAT, firewall | Adapter 1 Bridged (WAN) · 2 `LAN-Office` · 3 `ether3-Servers` · 4 `LAN-Security` |
 | **DC01** | Windows Server (build 26100) | 2 / 2 GB+ | Domain controller, DNS | `ether3-Servers` |
-| **Win 10** | Windows 10 (64-bit) | 2 / 2 GB | Domain workstation, Wazuh agent | `LAN-Zyra` *(see open items)* |
+| **Win 10** | Windows 10 (64-bit) | 2 / 2 GB | Domain workstation, Wazuh agent | `LAN-Office` *(see open items)* |
 | **Ubuntu Server** | Ubuntu Server | 4 / ~10.6 GB | Wazuh manager, indexer, dashboard | `LAN-Security` *(see open items)* |
 
 ---
@@ -117,7 +117,7 @@ Every segment is a separate VirtualBox **internal network** attached to its own 
 
 - [ ] Point the Office DHCP network's DNS to **192.168.20.10** (currently 8.8.8.8). This is required for domain join.
 - [ ] Remove the unused `192.168.88.0/24` DHCP network left over from the RouterOS defaults.
-- [ ] Move the **Win 10** adapter from *NAT* to internal network `LAN-Zyra`.
+- [ ] Move the **Win 10** adapter from *NAT* to internal network `LAN-Office`.
 - [ ] Move the **Ubuntu Server** adapter to internal network `LAN-Security`.
 
 ---

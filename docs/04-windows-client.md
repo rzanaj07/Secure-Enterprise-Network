@@ -8,7 +8,7 @@ The **Win 10** workstation represents an employee computer in the **Office** seg
 
 | Requirement | Why |
 |-------------|-----|
-| VirtualBox Adapter 1 set to **Internal Network `LAN-Zyra`** | Connects the VM to `ether2-Office` on the router |
+| VirtualBox Adapter 1 set to **Internal Network `LAN-Office`** | Connects the VM to `ether2-Office` on the router |
 | MikroTik DHCP for 192.168.10.0/24 hands out **DNS 192.168.20.10** | Clients find the domain controller through DNS SRV records hosted on DC01 |
 | DC01 reachable from the Office segment | Required for Kerberos, LDAP, and SMB during the join |
 
