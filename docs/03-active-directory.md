@@ -25,7 +25,10 @@ Results of `ipconfig /all`:
 - **IPv4:** 192.168.20.10, mask 255.255.255.0, gateway 192.168.20.1
 - **DNS Servers:** ::1 and 127.0.0.1
 
-![Static IP – ipconfig /all](../screenshots/active-directory/01-static-ip-ipconfig.png)
+<p align="center">
+  <img src="../screenshots/active-directory/01-static-ip-ipconfig.png" alt="Static IP – ipconfig /all" width="750"><br>
+  <sub><b>Figure 3.1:</b> <code>ipconfig /all</code> on DC01. DHCP is disabled and the server has the static address <b>192.168.20.10/24</b>, with default gateway <b>192.168.20.1</b> (MikroTik). DNS points to the server itself (<b>::1 / 127.0.0.1</b>), and the primary DNS suffix is <b>corp.local</b>.</sub>
+</p>
 
 <details>
 <summary>PowerShell equivalent</summary>
@@ -45,7 +48,10 @@ The **Active Directory Domain Services (AD DS)** and **DNS Server** roles were i
 
 The Server Manager dashboard shows the three roles installed: **AD DS**, **DNS**, and **File and Storage Services**. All of them report healthy manageability (green).
 
-![Server Manager – roles](../screenshots/active-directory/02-server-manager-roles.png)
+<p align="center">
+  <img src="../screenshots/active-directory/02-server-manager-roles.png" alt="Server Manager – roles" width="850"><br>
+  <sub><b>Figure 3.2:</b> The Server Manager dashboard. The <b>AD DS</b>, <b>DNS</b> and <b>File and Storage Services</b> roles are installed, and each reports healthy manageability (green).</sub>
+</p>
 
 <details>
 <summary>PowerShell equivalent</summary>
@@ -62,7 +68,10 @@ Install-ADDSForest -DomainName "corp.local" -DomainNetbiosName "CORP" -InstallDn
 
 After promotion, the server reboots. The local Administrator account becomes the **domain administrator**, `CORP\Administrator`, and the logon screen now shows the domain name. This confirms the forest was created.
 
-![Domain admin logon](../screenshots/active-directory/03-domain-admin-login.png)
+<p align="center">
+  <img src="../screenshots/active-directory/03-domain-admin-login.png" alt="Domain admin logon" width="750"><br>
+  <sub><b>Figure 3.3:</b> The Windows logon screen after promotion now shows <b>CORP\Administrator</b>. The local Administrator has become the domain administrator of the new <b>CORP</b> domain.</sub>
+</p>
 
 ---
 
@@ -80,7 +89,10 @@ corp.local
 
 **Tool:** *Server Manager → Tools → Active Directory Users and Computers*
 
-![OU structure](../screenshots/active-directory/04-ou-structure.png)
+<p align="center">
+  <img src="../screenshots/active-directory/04-ou-structure.png" alt="OU structure" width="850"><br>
+  <sub><b>Figure 3.4:</b> Active Directory Users and Computers showing the <b>corp.local</b> domain. A <b>Departments</b> OU contains the <b>Finance</b>, <b>IT</b> and <b>Office</b> sub-OUs, which are used for Group Policy targeting and delegated administration.</sub>
+</p>
 
 <details>
 <summary>PowerShell equivalent</summary>
@@ -99,7 +111,10 @@ New-ADOrganizationalUnit -Name "Departments" -Path "DC=corp,DC=local"
 
 The **Domain Controllers** container lists **DC01**. Its DC Type is **GC (Global Catalog)** and its site is `Default-First-Site-Name`. The Global Catalog holds a searchable copy of every object in the forest. Clients need it for logon and for searching AD.
 
-![Domain Controllers](../screenshots/active-directory/05-domain-controllers.png)
+<p align="center">
+  <img src="../screenshots/active-directory/05-domain-controllers.png" alt="Domain Controllers" width="850"><br>
+  <sub><b>Figure 3.5:</b> The <b>Domain Controllers</b> OU lists <b>DC01</b> as a <b>Global Catalog (GC)</b> server in the <i>Default-First-Site-Name</i> site.</sub>
+</p>
 
 ---
 
@@ -111,7 +126,10 @@ With this setup, every domain client uses **DC01 as its only DNS server**. Clien
 
 **Tool:** *DNS Manager → right-click DC01 → Properties → Forwarders*
 
-![DNS forwarders](../screenshots/active-directory/06-dns-forwarders.png)
+<p align="center">
+  <img src="../screenshots/active-directory/06-dns-forwarders.png" alt="DNS forwarders" width="850"><br>
+  <sub><b>Figure 3.6:</b> DNS Manager, <i>DC01 → Properties → Forwarders</i>. Queries that DC01 can't resolve itself are forwarded to Google DNS (<b>8.8.8.8</b> and <b>8.8.4.4</b>), with root hints as a fallback.</sub>
+</p>
 
 <details>
 <summary>PowerShell equivalent</summary>
@@ -130,7 +148,10 @@ Add-DnsServerForwarder -IPAddress 8.8.8.8, 8.8.4.4
 | `whoami` | `corp\administrator` | Logged in with a domain account |
 | `nslookup corp.local` | `192.168.20.10` | The domain name resolves to the DC through its own DNS (`::1`) |
 
-![Verification – whoami & nslookup](../screenshots/active-directory/07-verify-whoami-nslookup.png)
+<p align="center">
+  <img src="../screenshots/active-directory/07-verify-whoami-nslookup.png" alt="Verification – whoami & nslookup" width="750"><br>
+  <sub><b>Figure 3.7:</b> Verification on DC01. <code>whoami</code> returns <b>corp\administrator</b>, and <code>nslookup corp.local</code> resolves to <b>192.168.20.10</b> through the server's own DNS service (::1).</sub>
+</p>
 
 Other useful checks:
 

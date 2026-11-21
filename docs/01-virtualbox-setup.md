@@ -31,4 +31,7 @@ Each VM's Adapter 1 must use the **same internal network name** as the MikroTik 
 | Win 10 | Internal Network `LAN-Office` |
 | Ubuntu Server | Internal Network `LAN-Security` |
 
-![VirtualBox VM list](../screenshots/virtualbox-vms.png)
+<p align="center">
+  <img src="../screenshots/virtualbox-vms.png" alt="VirtualBox VM list" width="850"><br>
+  <sub><b>Figure 1.1:</b> VirtualBox Manager showing the lab virtual machines: <b>MikroTik-CHR</b>, <b>DC01</b> and <b>Win 10</b> running, and <b>Ubuntu Server</b> powered off. The details pane shows the Win 10 VM with 2 GB RAM, 2 vCPUs and a 50 GB disk.</sub>
+</p>

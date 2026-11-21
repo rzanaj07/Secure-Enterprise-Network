@@ -4,11 +4,16 @@ The MikroTik Cloud Hosted Router (CHR), running **RouterOS 7.24.6 (long-term)**,
 
 These screenshots were taken from **WinBox** connected to the router.
 
-## 2.1 First boot
+## 2.1 Connecting with WinBox
 
-After the first boot, the CHR shows a login prompt in the VirtualBox console. The default user is `admin` with an empty password. RouterOS makes you set a new password at the first login.
+After the first boot, the CHR gets an address on `ether1-WAN` from the home network by DHCP. The router is then managed from the host PC with **WinBox**. The **Neighbors** tab discovers the router automatically through the MikroTik Neighbor Discovery Protocol (MNDP), so you don't need to know its IP in advance.
 
-![MikroTik console login](../screenshots/mikrotik/00-current-console.png)
+On first login, the default user is `admin` with an empty password, and RouterOS makes you set a new password.
+
+<p align="center">
+  <img src="../screenshots/mikrotik/00-winbox-login.png" alt="WinBox login and neighbor discovery" width="850"><br>
+  <sub><b>Figure 2.1:</b> The WinBox login screen. The <b>Neighbors</b> tab has discovered the router: identity <b>CHR</b>, RouterOS <b>7.24.6 (long-term)</b>, reachable at <b>192.168.100.208</b> on its <b>ether1-WAN</b> port. Selecting the neighbor fills in <i>Connect to</i>, and the session is opened with the router credentials.</sub>
+</p>
 
 ---
 
@@ -27,7 +32,10 @@ Separating users, servers, and security tools into their own Layer-3 networks is
 
 **WinBox:** `IP → Addresses`
 
-![IP Addresses](../screenshots/mikrotik/01-ip-addresses.png)
+<p align="center">
+  <img src="../screenshots/mikrotik/01-ip-addresses.png" alt="IP Addresses" width="850"><br>
+  <sub><b>Figure 2.2:</b> WinBox, <i>IP → Addresses</i>. The static gateway addresses <b>192.168.10.1</b> (ether2-Office), <b>192.168.20.1</b> (ether3-Servers) and <b>192.168.30.1</b> (ether4-LAN Security) are configured. The WAN interface <b>ether1-WAN</b> has the dynamic address <b>192.168.100.208</b> (flag <b>D</b>), assigned by DHCP from the home network.</sub>
+</p>
 
 <details>
 <summary>CLI equivalent</summary>
@@ -61,7 +69,10 @@ The router runs DHCP so that clients get an IP address, a default gateway, and a
 
 **WinBox:** `IP → DHCP Server → Networks`
 
-![DHCP Networks](../screenshots/mikrotik/02-dhcp-networks.png)
+<p align="center">
+  <img src="../screenshots/mikrotik/02-dhcp-networks.png" alt="DHCP Networks" width="850"><br>
+  <sub><b>Figure 2.3:</b> WinBox, <i>IP → DHCP Server → Networks</i>. Each DHCP network defines the gateway and DNS server given to clients. The Servers network (192.168.20.0/24) hands out the domain controller <b>192.168.20.10</b> as its DNS server.</sub>
+</p>
 
 > **Why DNS matters for Active Directory:** domain-joined computers find the domain controller through DNS SRV records, which only DC01 has. Office clients must use **192.168.20.10** as their DNS server, or joining the domain will fail. DC01 forwards internet lookups to 8.8.8.8 itself.
 
@@ -93,7 +104,10 @@ Internal addresses (192.168.x.x) can't be routed on the internet. A **source NAT
 
 **WinBox:** `IP → Firewall → NAT`
 
-![NAT masquerade](../screenshots/mikrotik/03-nat-masquerade.png)
+<p align="center">
+  <img src="../screenshots/mikrotik/03-nat-masquerade.png" alt="NAT masquerade" width="850"><br>
+  <sub><b>Figure 2.4:</b> WinBox, <i>IP → Firewall → NAT</i>. A single <b>srcnat / masquerade</b> rule on out-interface <b>ether1-WAN</b> translates all internal traffic to the router's WAN address, which gives every segment internet access.</sub>
+</p>
 
 <details>
 <summary>CLI equivalent</summary>
