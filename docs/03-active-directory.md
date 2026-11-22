@@ -5,7 +5,7 @@
 | Setting | Value |
 |---------|-------|
 | Hostname | DC01 |
-| OS | Windows Server (build 10.0.26100) |
+| OS | Windows Server 2025 Standard (build 26100) |
 | Domain (FQDN) | `corp.local` |
 | NetBIOS name | `CORP` |
 | IP address | 192.168.20.10/24 (static) |
@@ -163,8 +163,62 @@ nslookup -type=SRV _ldap._tcp.dc._msdcs.corp.local   # SRV record that clients u
 
 ---
 
+## 3.8 Group Policy: restricting Control Panel for Office users
+
+Group Policy is used to enforce a **least-privilege** desktop for standard employees. A GPO named **`POL-Control-Panel`** blocks access to Control Panel and the Settings app, so that Office users can't change system, network, or security settings on their workstations.
+
+| Item | Value |
+|------|-------|
+| GPO name | `POL-Control-Panel` |
+| Linked to | `corp.local → Departments → Office` |
+| Setting | *User Configuration → Policies → Administrative Templates → Control Panel → **Prohibit access to Control Panel and PC settings** = Enabled* |
+| Scope | User accounts inside the Office OU (for example, `user2`) |
+| Status | Enabled |
+
+**Tool:** *Server Manager → Tools → Group Policy Management*
+
+<p align="center">
+  <img src="../screenshots/active-directory/08-gpo-control-panel-link.png" alt="POL-Control-Panel linked to Office OU" width="850"><br>
+  <sub><b>Figure 3.8:</b> Group Policy Management, <i>Departments → Office → Group Policy Inheritance</i>. <b>POL-Control-Panel</b> is linked to the <b>Office</b> OU with precedence <b>1</b>, above the domain-wide <b>Default Domain Policy</b> (precedence 2). Both GPOs are <b>Enabled</b>.</sub>
+</p>
+
+<details>
+<summary>PowerShell equivalent</summary>
+
+```powershell
+New-GPO -Name "POL-Control-Panel" |
+  New-GPLink -Target "OU=Office,OU=Departments,DC=corp,DC=local"
+
+Set-GPRegistryValue -Name "POL-Control-Panel" `
+  -Key "HKCU\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer" `
+  -ValueName "NoControlPanel" -Type DWord -Value 1
+```
+</details>
+
+### Verification on the client
+
+On Office-PC, signed in as `CORP\user2`, the policy is refreshed with `gpupdate /force` and checked with `gpresult /r`:
+
+| Check | Result |
+|-------|--------|
+| User location in AD | `CN=user2 user, OU=Office, ...`, so the user is in scope of the GPO |
+| Applied Group Policy Objects | **POL-Control-Panel** |
+| Opening Control Panel | Blocked with the *Restrictions* dialog |
+
+<p align="center">
+  <img src="../screenshots/active-directory/09-gpo-applied-restriction.png" alt="GPO applied and Control Panel blocked" width="850"><br>
+  <sub><b>Figure 3.9:</b> Policy enforcement on Office-PC. <code>gpresult /r</code> shows that user2 belongs to the <b>Office</b> OU and has <b>POL-Control-Panel</b> applied. Opening Control Panel now fails with <i>"This operation has been cancelled due to restrictions in effect on this computer."</i></sub>
+</p>
+
+```cmd
+gpupdate /force
+gpresult /r
+```
+
+---
+
 ## Next steps
 
-- Create users and security groups in each department OU.
-- Group Policy: password policy (12+ characters), account lockout (5 attempts), and **advanced audit policy** (logon, account management, process creation), so Wazuh receives useful events.
-- Join Win 10 to the domain → [04-windows-client.md](04-windows-client.md)
+- Create security groups per department, and move `OFFICE-PC` into `Departments → Office`.
+- Group Policy baseline: password policy (12+ characters), account lockout (5 attempts), and **advanced audit policy** (logon, account management, process creation), so Wazuh receives useful events.
+- Join Win 10 to the domain → [04-windows-client.md](04-windows-client.md) ✅

@@ -46,7 +46,7 @@ flowchart TB
     INET ---|"ether1-WAN<br/>192.168.100.208 (DHCP)"| RTR
 
     subgraph OFFICE["Office · 192.168.10.0/24"]
-        W10["🖥️ Win 10<br/>Domain workstation"]
+        W10["🖥️ Office-PC (Win 10)<br/>Domain workstation<br/>192.168.10.200"]
     end
     subgraph SERVERS["Servers · 192.168.20.0/24"]
         DC["🗄️ DC01<br/>AD DS · DNS<br/>192.168.20.10"]
@@ -69,7 +69,7 @@ Every segment is a separate VirtualBox **internal network** attached to its own 
 | Router interface | Segment | Subnet | Gateway | Addressing | Hosts |
 |------------------|---------|--------|---------|------------|-------|
 | `ether1-WAN` | Internet uplink | 192.168.100.0/24 | Home router | DHCP client (192.168.100.208) | n/a |
-| `ether2-Office` | Office / users | 192.168.10.0/24 | 192.168.10.1 | MikroTik DHCP | Win 10 |
+| `ether2-Office` | Office / users | 192.168.10.0/24 | 192.168.10.1 | MikroTik DHCP, static | Office-PC at 192.168.10.200 |
 | `ether3-Servers` | Servers | 192.168.20.0/24 | 192.168.20.1 | Static, plus MikroTik DHCP | DC01 at 192.168.20.10 |
 | `ether4-LAN Security` | Security | 192.168.30.0/24 | 192.168.30.1 | Static | Wazuh server |
 
@@ -90,8 +90,8 @@ Every segment is a separate VirtualBox **internal network** attached to its own 
 | VM | Operating system | vCPU / RAM | Role | VirtualBox network |
 |----|------------------|------------|------|--------------------|
 | **MikroTik-CHR** | RouterOS 7.24.6 (long-term) | 1 / 256 MB | Core router, DHCP, NAT, firewall | Adapter 1 Bridged (WAN) · 2 `LAN-Office` · 3 `ether3-Servers` · 4 `LAN-Security` |
-| **DC01** | Windows Server (build 26100) | 2 / 2 GB+ | Domain controller, DNS | `ether3-Servers` |
-| **Win 10** | Windows 10 (64-bit) | 2 / 2 GB | Domain workstation, Wazuh agent | `LAN-Office` *(see open items)* |
+| **DC01** | Windows Server 2025 Standard (build 26100) | 2 / 2 GB+ | Domain controller, DNS | `ether3-Servers` |
+| **Win 10** (Office-PC) | Windows 10 (build 19045) | 2 / 2 GB | Domain workstation (192.168.10.200), Wazuh agent | `LAN-Office` |
 | **Ubuntu Server** | Ubuntu Server | 4 / ~10.6 GB | Wazuh manager, indexer, dashboard | `LAN-Security` *(see open items)* |
 
 ---
@@ -108,16 +108,17 @@ Every segment is a separate VirtualBox **internal network** attached to its own 
 | 2 | MikroTik: hardening and syslog to Wazuh | ⏳ Planned |
 | 3 | DC01: static IP, AD DS, DNS, `corp.local` forest | ✅ Done |
 | 3 | DC01: OU structure and DNS forwarders | ✅ Done |
-| 3 | DC01: users, groups, Group Policy | ⏳ Planned |
-| 4 | Win 10 joined to `corp.local` | ⏳ Planned |
+| 3 | DC01: domain user in Office OU, Control Panel restriction GPO | ✅ Done |
+| 3 | DC01: security groups, password, lockout and audit GPO baseline | ⏳ Planned |
+| 4 | Office-PC (Win 10) joined to `corp.local` | ✅ Done |
 | 5 | Wazuh SIEM deployment | ⏳ Planned |
 | 6 | Wazuh agents and attack simulation | ⏳ Planned |
 
 ### Open items
 
-- [ ] Point the Office DHCP network's DNS to **192.168.20.10** (currently 8.8.8.8). This is required for domain join.
+- [ ] Point the Office DHCP network's DNS to **192.168.20.10** (currently 8.8.8.8). Office-PC uses a static DNS entry; DHCP clients still need this fix.
 - [ ] Remove the unused `192.168.88.0/24` DHCP network left over from the RouterOS defaults.
-- [ ] Move the **Win 10** adapter from *NAT* to internal network `LAN-Office`.
+- [x] Move the **Win 10** adapter from *NAT* to internal network `LAN-Office`.
 - [ ] Move the **Ubuntu Server** adapter to internal network `LAN-Security`.
 
 ---
@@ -128,8 +129,8 @@ Every segment is a separate VirtualBox **internal network** attached to its own 
 |---|-------|-------------|
 | 01 | [VirtualBox lab setup](docs/01-virtualbox-setup.md) | VM sizing and network adapter mapping |
 | 02 | [MikroTik configuration](docs/02-mikrotik-configuration.md) | Interfaces, addressing, DHCP, NAT, firewall, hardening |
-| 03 | [Active Directory](docs/03-active-directory.md) | DC01 build, `corp.local` forest, OUs, DNS |
-| 04 | [Windows client](docs/04-windows-client.md) | Joining Win 10 to the domain |
+| 03 | [Active Directory](docs/03-active-directory.md) | DC01 build, `corp.local` forest, OUs, DNS, Group Policy |
+| 04 | [Windows client](docs/04-windows-client.md) | Joining Office-PC to the domain and verifying domain logon |
 | 05 | [Wazuh SIEM](docs/05-wazuh-siem.md) | Wazuh all-in-one deployment |
 | 06 | [Agents and testing](docs/06-agents-and-testing.md) | Agent rollout and detection test scenarios |
 
@@ -145,6 +146,7 @@ Every segment is a separate VirtualBox **internal network** attached to its own 
 | **Address translation** | Internal subnets are hidden behind the WAN interface (masquerade) | ✅ |
 | **Inter-segment firewall** | Default-deny forward chain; only the AD, DNS, and Wazuh ports are allowed | ⏳ |
 | **Router hardening** | Unused services disabled, default `admin` account replaced, management restricted | ⏳ |
+| **Least-privilege desktop (GPO)** | `POL-Control-Panel` blocks Control Panel and Settings for the Office OU | ✅ |
 | **Group Policy baseline** | Password, lockout, and advanced audit policies | ⏳ |
 | **Security monitoring** | Wazuh agents on Windows hosts, plus MikroTik syslog | ⏳ |
 
@@ -170,6 +172,7 @@ Secure-Enterprise-Network/
     ├── virtualbox-vms.png
     ├── mikrotik/             WinBox and console captures
     ├── active-directory/     DC01 configuration captures
+    ├── windows-client/       Office-PC domain join captures
     └── wazuh/                SIEM dashboard and alerts
 ```
 

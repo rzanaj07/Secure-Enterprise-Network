@@ -5,7 +5,7 @@
 | VM | RAM | CPU | Disk | Image |
 |----|-----|-----|------|-------|
 | MikroTik-CHR | 256 MB | 1 | CHR .vdi | [mikrotik.com/download](https://mikrotik.com/download) → Cloud Hosted Router, VDI image |
-| DC01 | 2–4 GB | 2 | 50 GB | Windows Server evaluation ISO |
+| DC01 | 2–4 GB | 2 | 50 GB | Windows Server 2025 evaluation ISO |
 | Win 10 | 2 GB | 2 | 50 GB | Windows 10 ISO |
 | Ubuntu Server | 8 GB+ (Wazuh needs at least 4 GB) | 4 | 50 GB+ | Ubuntu Server 22.04/24.04 LTS |
 
